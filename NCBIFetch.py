@@ -8,7 +8,7 @@ import sys
 import encodings
 import time
 import os
-import pyodbc
+# import pyodbc
 import math
 from itertools import chain
 from IPython.display import HTML
@@ -42,11 +42,11 @@ def pub_search(term, db, record_count, sort = 'relevance', chunksize = 500, slee
     id_list = []
     retstartc = 0
     for i in range(submitinterv):
-        handle = Entrez.esearch(db=db, 
-                            sort='relevance', 
+        handle = Entrez.esearch(db=db,
+                            sort='relevance',
                             retstart= retstartc,
                             retmax=chunksize,
-                            retmode='xml', 
+                            retmode='xml',
                             term=term)
         idresults = Entrez.read(handle)
         id_list += idresults['IdList']
@@ -57,14 +57,14 @@ def pub_search(term, db, record_count, sort = 'relevance', chunksize = 500, slee
 
 
 #Filter record ids based on existence in database
-def filter_ids(id_list,db_name,db):
-    conn_str = 'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=%s;' % db_name
-    cnxn = pyodbc.connect(conn_str)
-    cur = cnxn.cursor()
-    aid_list = cur.execute("""select distinct b.AssociatedID from DataPull_ID as a inner join DataPull_Detail as b on a.PullID = b.PullID where a.PullSource = ?""",db).fetchall()
-    existing_ids = {associatedid[0] for associatedid in aid_list}
-    id_list_fetch = [fetch_id for fetch_id in id_list if fetch_id not in existing_ids]
-    return id_list_fetch
+# def filter_ids(id_list,db_name,db):
+#     conn_str = 'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=%s;' % db_name
+#     cnxn = pyodbc.connect(conn_str)
+#     cur = cnxn.cursor()
+#     aid_list = cur.execute("""select distinct b.AssociatedID from DataPull_ID as a inner join DataPull_Detail as b on a.PullID = b.PullID where a.PullSource = ?""",db).fetchall()
+#     existing_ids = {associatedid[0] for associatedid in aid_list}
+#     id_list_fetch = [fetch_id for fetch_id in id_list if fetch_id not in existing_ids]
+#     return id_list_fetch
 
 
 #function for fetching xmls for given ids
@@ -74,7 +74,7 @@ def pub_fetch(db, id_list_fetch):
     sleeptime = 5
     restartc = 0
     doc_list = []
-    
+
     for i in range(submitinterv):
         fetchHandle = Entrez.efetch(db=db,
                                   retmode='xml',
@@ -95,19 +95,19 @@ def serialize_xml(unique_identifier,xml_doc):
     pklName = unique_identifier+'.pkl'
     with open(pklName, 'wb') as f:
       pickle.dump(xml_doc, f)
-      
+
 #function to save the unique identifier for the xml as a json
 def to_json(unique_identifier_fetch):
     json.dump(unique_identifier_fetch,open("unique_identifier_fetch.json","w"))
 
 
-    
+
 #main function to run all functions and assign unique_identifier to the run
 def main(term,db,db_name,email_id):
 
     character_set = string.ascii_letters
     character_set += string.digits
-  
+
     unique_identifier_fetch = ''
 
     for _ in range(25):
@@ -118,8 +118,8 @@ def main(term,db,db_name,email_id):
 
     #Retrieve record ids
     id_list = pub_search(term,db,record_count)
-    
-    #Filter record ids 
+
+    #Filter record ids
     id_list_fetch = filter_ids(id_list,db_name,db)
 
     #Fetch xmls for each record id
@@ -127,7 +127,7 @@ def main(term,db,db_name,email_id):
 
     #serialize xml documents (serialize)
     serialize_xml(unique_identifier_fetch,doc_full)
-    
+
     return unique_identifier_fetch,id_list_fetch
 
 
@@ -139,8 +139,7 @@ def ex_main(term,db,db_name,email_id):
   to_json(unique_identifier_fetch_list)
   unique_identifier_fetch = run_main[0]
   return unique_identifier_fetch
-  
+
 
 if __name__ == '__main__':
     unique_identifier_fetch = ex_main(term,db,db_name,email_id)
-    

@@ -18,6 +18,6 @@ class database:
 		formatted_query = ' AND '.join(formatted_terms)
 		return formatted_query
 
-	def format_dt(self):
+	def format_db(self):
 		formatted_db = self.input_db.lower()
 		return formatted_db

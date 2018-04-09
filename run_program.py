@@ -32,4 +32,4 @@ if __name__ == '__main__':
 
 
 print('unique_identifier_fetch: ', unique_identifier_fetch)
-print('unique_identifier_parse: ', unique_identifier_parse) 
+print('unique_identifier_parse: ', unique_identifier_parse)
