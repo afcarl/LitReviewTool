@@ -22,6 +22,7 @@ from itertools import groupby
 import json
 import random
 import string
+import helper
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -30,6 +31,7 @@ class ncbi_search:
         self.input_term = input_term
         self.input_db = input_db
         self.email_id = email_id
+        self.Tracker = helper.track_outputs
 
     #Find # of records within search parameters
     def pub_count(self):
@@ -40,6 +42,7 @@ class ncbi_search:
             if row['DbName'] == self.input_db:
                 record_count = row['Count']
         counthandle.close()
+
         return record_count
 
     #function for retrieving and storing ids
@@ -65,11 +68,7 @@ class ncbi_search:
             handle.close()
         return id_list
 
-    # function to serialize the id list that was pulled from API
-    def serialize_ids(unique_identifier,id_list):
-        id_list_name = unique_identifier+'.pkl'
-        with open(id_list_name, 'wb') as f:
-          pickle.dump(id_list, f)
+
 
 
 #Filter record ids based on existence in database
