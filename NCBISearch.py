@@ -22,6 +22,8 @@ from itertools import groupby
 import json
 import random
 import string
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 class ncbi_search:
     def __init__(self,input_term,input_db,email_id):
@@ -35,7 +37,7 @@ class ncbi_search:
         counthandle = Entrez.egquery(term = self.input_term)
         record = Entrez.read(counthandle)
         for row in record["eGQueryResult"]:
-            if row['DbName'] == db:
+            if row['DbName'] == self.input_db:
                 record_count = row['Count']
         counthandle.close()
         return record_count
@@ -45,11 +47,15 @@ class ncbi_search:
         submitinterv = math.ceil(int(record_count)/chunksize)
         id_list = []
         retstartc = 0
+        if record_count < chunksize:
+            ret_max = record_count
+        elif record_count >= chunksize:
+            ret_max = chunksize
         for i in range(submitinterv):
             handle = Entrez.esearch(db=self.input_db,
                                 sort='relevance',
                                 retstart= retstartc,
-                                retmax=chunksize,
+                                retmax=ret_max,
                                 retmode='xml',
                                 term=self.input_term)
             idresults = Entrez.read(handle)
@@ -60,7 +66,7 @@ class ncbi_search:
         return id_list
 
     # function to serialize the id list that was pulled from API
-    def serialize_xml(unique_identifier,id_list):
+    def serialize_ids(unique_identifier,id_list):
         id_list_name = unique_identifier+'.pkl'
         with open(id_list_name, 'wb') as f:
           pickle.dump(id_list, f)
