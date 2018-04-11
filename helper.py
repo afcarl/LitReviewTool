@@ -30,7 +30,8 @@ class db_cnxn:
         return query_return
 
 class track_outputs:
-    def __init__(self,output_type,input_term,input_db):d
+    def __init__(self,output_type,input_term,input_db):
+
         #create identifiers
         character_set = string.ascii_letters
         character_set += string.digits

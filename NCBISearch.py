@@ -8,7 +8,6 @@ import sys
 import encodings
 import time
 import os
-# import pyodbc
 import math
 from itertools import chain
 from IPython.display import HTML
@@ -23,6 +22,7 @@ import json
 import random
 import string
 import helper
+import new_helper
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -31,7 +31,7 @@ class ncbi_search:
         self.input_term = input_term
         self.input_db = input_db
         self.email_id = email_id
-        self.Tracker = helper.track_outputs
+        # self.tracker = helper.track_outputs
 
     #Find # of records within search parameters
     def pub_count(self):
@@ -42,7 +42,6 @@ class ncbi_search:
             if row['DbName'] == self.input_db:
                 record_count = row['Count']
         counthandle.close()
-
         return record_count
 
     #function for retrieving and storing ids
@@ -67,6 +66,37 @@ class ncbi_search:
             retstartc += chunksize
             handle.close()
         return id_list
+
+        def search_properties(self):
+            now = datetime.datetime.now()
+            time_stamp = now.strftime("%Y-%m-%d %H:%M")
+            record_count = self.pub_count()
+            prop_dict = {'id':self.unique_id,'id_type':'search'
+            ,'input_term':self.input_term,'input_db':self.input_db,'record_count':record_count
+            ,'search_date':time_stamp}
+            return prop_dict
+
+
+
+
+            #serialize id
+            def serialize_output(self,output):
+                # pickle_name = ''
+                pickle_name = self.unique_id + '.pkl'
+                with open(pickle_name, 'wb') as f:
+                  pickle.dump(output, f)
+                # id_dict = {output_type+'id':pickle_name}
+                # return id_dict
+
+
+            #function to save the unique identifier for the xml as a json
+            def update_id_json(self,prop_dict):
+                # prop_dict = search_properties(record_count)
+                with open("unique_identifiers.json") as f:
+                    data = json.load(f)
+                data.append(prop_dict)
+                with open('unique_identifiers.json', 'w') as f:
+                    json.dump(data, f)
 
 
 
